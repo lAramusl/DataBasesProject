@@ -1,20 +1,15 @@
-import psycopg2
+import os
 
-def create_database(dbname='aramusDB', user='Aramus', password='1234'):#nobody's gonna hack this
-    conn = psycopg2.connect(
-        dbname = 'postgres',
-        user = user,
-        password = password,
-        host = 'localhost',
-        port = '5432'
-    )
+def create_container_and_db(name = 'AramusProjectDB', user='Aramus', password='1234', dbname='pc_shop', port=5432):
+    command = f"docker run --name {name} -e POSTGRES_USER={user} -e POSTGRES_PASSWORD={password} -e POSTGRES_DB={dbname} -d -p {port}:{port} postgres:15.4"
+    print(command)
+    try:
+        os.system(command)
+    except:
+        pass
 
-    conn.autocommit = True
-
-    cursor = conn.cursor()
-
-    cursor.execute("CREATE DATABASE pc_shop")
-    print("Database created successfully")
+def create_tables():
+    pass
 
 if __name__ == "__main__":
-    create_database()
+    create_container_and_db()
