@@ -4,36 +4,38 @@ from sqlalchemy.orm import relationship
 
 Base = declarative_base()
 
+#WRITE EVERYTHING IN LOWERCASE
 class Laptop(Base):
-    __tablename__ = "Laptop"
+    __tablename__ = "laptop"
     id = Column(Integer, primary_key=True, index=True)
-    Model = Column(VARCHAR(20), nullable=False)
-    CPU = Column(VARCHAR(20), nullable=False)
-    GPU = Column(VARCHAR(20), nullable=False)
-    RAM = Column(VARCHAR(20), nullable=False)
-    ScreenSize = Column(VARCHAR(10), nullable=False)
-    Matrix = Column(VARCHAR(10), nullable=False)
+    model = Column(VARCHAR(20), nullable=False)
+    cpu = Column(VARCHAR(20), nullable=False)
+    gpu = Column(VARCHAR(20), nullable=False)
+    ram = Column(VARCHAR(20), nullable=False)
+    screensize = Column(VARCHAR(10), nullable=False)
+    matrix = Column(VARCHAR(10), nullable=False)
 
-    market_offers = relationship("MarketOffer", back_populates="laptop")
+    market_offers = relationship("MarketOffer", back_populates="laptop", foreign_keys="MarketOffer.laptopid")
+
 
 class Producer(Base):
-    __tablename__ = "Producer"
+    __tablename__ = "producer"
     id = Column(Integer, primary_key=True, index=True)
-    Name = Column(String, nullable=False)
-    Country = Column(String, nullable=False)
-    Placement = Column(String, nullable=True)
-    Warranty = Column(BOOLEAN, nullable=True)
+    name = Column(String, nullable=False)
+    country = Column(String, nullable=False)
+    placement = Column(String, nullable=True)
+    warranty = Column(BOOLEAN, nullable=True)
 
-    market_offers = relationship("MarketOffer", back_populates="producer")
+    market_offers = relationship("MarketOffer", back_populates="producer", foreign_keys="MarketOffer.producerid")
 
 
 class MarketOffer(Base):
-    __tablename__ = "MarketOffer"
+    __tablename__ = "marketoffer"
     id = Column(Integer, primary_key=True, index=True)
-    LaptopID = Column(Integer, ForeignKey("Laptop.id"), nullable=False)#add foreign key thing
-    ProducerID = Column(Integer, ForeignKey("Laptop.id"), nullable=False)#add foreign key thing
-    Price = Column(Float, nullable=False)
-    Date = Column(DateTime, nullable=False)
-    
+    laptopid = Column(Integer, ForeignKey("laptop.id"), nullable=False)  # Обратите внимание на регистр
+    producerid = Column(Integer, ForeignKey("producer.id"), nullable=False)  # Обратите внимание на регистр
+    price = Column(Float, nullable=False)
+    date = Column(DateTime, nullable=False)
+
     laptop = relationship("Laptop", back_populates="market_offers")
     producer = relationship("Producer", back_populates="market_offers")
