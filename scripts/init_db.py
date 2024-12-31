@@ -26,7 +26,7 @@ def create_tables():
 
     cursor.execute(
                     'CREATE TABLE Laptop('
-                    'id INT NOT NULL PRIMARY KEY, '
+                    'id SERIAL NOT NULL PRIMARY KEY, '
                     'Model VARCHAR(20) NOT NULL, '
                     'CPU VARCHAR(20) NOT NULL, '
                     'GPU VARCHAR(20) NOT NULL, '
@@ -38,7 +38,7 @@ def create_tables():
 
     cursor.execute(
                    'CREATE TABLE Producer('
-                   'id INT NOT NULL PRIMARY KEY,'
+                   'id SERIAL NOT NULL PRIMARY KEY,'
                    'Name Text NOT NULL,'
                    'Country Text NOT NULL,'
                    'Placement Text,'
@@ -48,7 +48,7 @@ def create_tables():
 
     cursor.execute(
                    'CREATE TABLE MarketOffer('
-                   'id INT NOT NULL PRIMARY KEY,'
+                   'id SERIAL NOT NULL PRIMARY KEY,'
                    'LaptopID INT NOT NULL references Laptop(id),'
                    'ProducerID INT NOT NULL references Producer(id),'
                    'Price FLOAT NOT NULL,'
