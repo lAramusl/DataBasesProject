@@ -1,5 +1,6 @@
-from sqlalchemy import Column, Integer, String, Float, VARCHAR, DateTime, BOOLEAN
+from sqlalchemy import Column, Integer, String, Float, VARCHAR, DateTime, BOOLEAN, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import relationship
 
 Base = declarative_base()
 
@@ -13,6 +14,8 @@ class Laptop(Base):
     ScreenSize = Column(VARCHAR(10), nullable=False)
     Matrix = Column(VARCHAR(10), nullable=False)
 
+    market_offers = relationship("MarketOffer", back_populates="laptop")
+
 class Producer(Base):
     __tablename__ = "Producer"
     id = Column(Integer, primary_key=True, index=True)
@@ -21,10 +24,16 @@ class Producer(Base):
     Placement = Column(String, nullable=True)
     Warranty = Column(BOOLEAN, nullable=True)
 
+    market_offers = relationship("MarketOffer", back_populates="producer")
+
+
 class MarketOffer(Base):
     __tablename__ = "MarketOffer"
     id = Column(Integer, primary_key=True, index=True)
-    LaptopID = Column(Integer, nullable=False)#add foreign key thing
-    ProducerID = Column(Integer, nullable=False)#add foreign key thing
+    LaptopID = Column(Integer, ForeignKey("Laptop.id"), nullable=False)#add foreign key thing
+    ProducerID = Column(Integer, ForeignKey("Laptop.id"), nullable=False)#add foreign key thing
     Price = Column(Float, nullable=False)
     Date = Column(DateTime, nullable=False)
+    
+    laptop = relationship("Laptop", back_populates="market_offers")
+    producer = relationship("Producer", back_populates="market_offers")
