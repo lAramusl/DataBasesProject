@@ -1,7 +1,5 @@
-from sqlalchemy import Column, Integer, String, Float, VARCHAR, DateTime
+from sqlalchemy import Column, Integer, String, Float, VARCHAR, DateTime, BOOLEAN
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
-from pydantic import BaseModel
 
 Base = declarative_base()
 
@@ -21,7 +19,7 @@ class Producer(Base):
     Name = Column(String, nullable=False)
     Country = Column(String, nullable=False)
     Placement = Column(String, nullable=True)
-    Warranty = Column(Float, nullable=True)
+    Warranty = Column(BOOLEAN, nullable=True)
 
 class MarketOffer(Base):
     __tablename__ = "MarketOffer"
