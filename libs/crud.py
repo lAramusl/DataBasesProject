@@ -4,12 +4,12 @@ import libs.schemas as sch
 
 def create_laptop(db: Session, laptop: sch.LaptopCreateSchema):
     db_laptop = modl.Laptop(
-        model=laptop.Model,
-        cpu=laptop.CPU,
-        gpu=laptop.GPU,
-        ram=laptop.RAM,
-        screensize=laptop.ScreenSize,
-        matrix=laptop.Matrix
+        model=laptop.model,
+        cpu=laptop.cpu,
+        gpu=laptop.gpu,
+        ram=laptop.ram,
+        screensize=laptop.screensize,
+        matrix=laptop.matrix
     )
     db.add(db_laptop)
     db.commit()
@@ -19,19 +19,18 @@ def create_laptop(db: Session, laptop: sch.LaptopCreateSchema):
 def get_laptops(db: Session, skip: int = 0, limit: int = 100):
     return db.query(modl.Laptop).offset(skip).limit(limit).all()
 
-def get_laptop(db: Session, laptop_id: int):
+def find_laptop(db: Session, laptop_id: int):
     return db.query(modl.Laptop).filter(modl.Laptop.id == laptop_id).first()
 
 def update_laptop(db: Session, laptop_id: int, laptop: sch.LaptopSchema):
     db_laptop = db.query(modl.Laptop).filter(modl.Laptop.id == laptop_id).first()
     if db_laptop:
-        db_laptop.Model = laptop.Model if laptop.Model else db_laptop.Model
-        db_laptop.CPU = laptop.CPU if laptop.CPU else db_laptop.CPU
-        db_laptop.GPU = laptop.GPU if laptop.GPU else db_laptop.GPU
-        db_laptop.RAM = laptop.RAM if laptop.RAM else db_laptop.RAM
-        db_laptop.ScreenSize = laptop.ScreenSize if laptop.ScreenSize else db_laptop.ScreenSize
-        db_laptop.Matrix = laptop.Matrix if laptop.Matrix else db_laptop.Matrix
-        
+        db_laptop.model = laptop.model if laptop.model else db_laptop.model
+        db_laptop.cpu = laptop.cpu if laptop.cpu else db_laptop.cpu
+        db_laptop.gpu = laptop.gpu if laptop.gpu else db_laptop.gpu
+        db_laptop.ram = laptop.ram if laptop.ram else db_laptop.ram
+        db_laptop.screensize = laptop.screensize if laptop.screensize else db_laptop.screensize
+        db_laptop.matrix = laptop.matrix if laptop.matrix else db_laptop.matrix
         db.commit()
         db.refresh(db_laptop)
         return db_laptop

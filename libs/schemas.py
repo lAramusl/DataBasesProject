@@ -5,23 +5,23 @@ from datetime import datetime
 #LAPTOPS
 class LaptopSchema(BaseModel):
     id: int
-    Model: str
-    CPU: str
-    GPU: str
-    RAM: str
-    ScreenSize: str
-    Matrix: str
+    model: str
+    cpu: str
+    gpu: str
+    ram: str
+    screensize: str
+    matrix: str
 
     class Config:
         orm_mode = True
 
 class LaptopCreateSchema(BaseModel):
-    Model: str
-    CPU: str
-    GPU: str
-    RAM: str
-    ScreenSize: str
-    Matrix: str
+    model: str
+    cpu: str
+    gpu: str
+    ram: str
+    screensize: str
+    matrix: str
 
 
 #PRODUCERS
