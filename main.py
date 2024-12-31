@@ -1,5 +1,4 @@
-import psycopg2
-import sqlalchemy
+
 from fastapi import FastAPI
 
 
