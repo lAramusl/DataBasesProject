@@ -1,5 +1,6 @@
 import os
 import psycopg2
+import time
 
 def create_container_and_db(name = 'AramusProjectDB', user='Aramus', password='1234', dbname='pc_shop', port=5432):
     command = (f'docker run --name {name} -e POSTGRES_USER={user} -e'
@@ -33,7 +34,8 @@ def create_tables():
                     'ScreenSize VARCHAR(10) NOT NULL, '
                     'Matrix VARCHAR(10) NOT NULL);'
                     )
-    
+    print("Laptop added")
+
     cursor.execute(
                    'CREATE TABLE Producer('
                    'id INT NOT NULL PRIMARY KEY,'
@@ -42,7 +44,8 @@ def create_tables():
                    'Placement Text,'
                    'Warranty Boolean);'
                    )
-    
+    print("Producer added")
+
     cursor.execute(
                    'CREATE TABLE MarketOffer('
                    'id INT NOT NULL PRIMARY KEY,'
@@ -51,7 +54,9 @@ def create_tables():
                    'Price FLOAT NOT NULL,'
                    'Date TIMESTAMP NOT NULL);'
                    )
+    print("MarketOffer added")
 
 if __name__ == "__main__":
     create_container_and_db()
+    time.sleep(2)
     create_tables()
