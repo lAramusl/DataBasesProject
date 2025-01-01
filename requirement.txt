@@ -4,3 +4,4 @@ sqlalchemy
 uvicorn
 requests
 faker
+alembic
