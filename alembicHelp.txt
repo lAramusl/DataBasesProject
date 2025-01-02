@@ -1,0 +1,2 @@
+alembic revision --autogenerate -m "your revision name"
+alembic upgrade head

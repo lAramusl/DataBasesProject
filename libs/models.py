@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Float, VARCHAR, DateTime, BOOLEAN, ForeignKey
+from sqlalchemy import Column, Integer, String, Float, VARCHAR, DateTime, BOOLEAN, ForeignKey, Index
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 
@@ -18,6 +18,7 @@ class Laptop(Base):
 
     market_offers = relationship("MarketOffer", back_populates="laptop", foreign_keys="MarketOffer.laptopid")
 
+Index("ix_laptop_color", Laptop.color)
 
 class Producer(Base):
     __tablename__ = "producer"
