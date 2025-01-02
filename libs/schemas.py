@@ -11,7 +11,7 @@ class LaptopSchema(BaseModel):
     ram: str
     screensize: str
     matrix: str
-    color: str
+    color: str #added with alembic to db
 
     class Config:
         orm_mode = True

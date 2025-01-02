@@ -14,7 +14,7 @@ Base.metadata.create_all(bind=engine)
 def read_root():
     return {"hello" : "world"}
 
-#--------------------------------------------------------------------------------LAPTOP 
+#--------------------------------------------------------------------------------LAPTOP CRUD
 @app.post("/laptops/", response_model=sch.LaptopSchema)
 def create_laptop(laptop: sch.LaptopCreateSchema, db: Session = Depends(get_db)):
     return crud.create_laptop(db=db, laptop=laptop)
@@ -46,7 +46,7 @@ def delete_laptop(laptop_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Laptop not found")
     return db_laptop
 
-#--------------------------------------------------------------------------------------PRODUCER
+#--------------------------------------------------------------------------------------PRODUCER CRUD
 @app.post("/producers/", response_model=sch.ProducerSchema)
 def create_producer(producer: sch.ProducerCreateSchema, db: Session = Depends(get_db)):
     return crud.create_producer(db=db, producer=producer)
@@ -76,7 +76,7 @@ def delete_producer(producer_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Producer not found")
     return db_producer
 
-#-----------------------------------------------------------------------------------------------MARKET_OFFER
+#-----------------------------------------------------------------------------------------------MARKET_OFFER CRUD
 @app.post("/marketoffers/", response_model=sch.MarketOfferSchema)
 def create_market_offer(market_offer: sch.MarketOfferCreateSchema, db: Session = Depends(get_db)):
     return crud.create_market_offer(db=db, market_offer=market_offer)
