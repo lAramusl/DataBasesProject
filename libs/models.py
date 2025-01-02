@@ -14,6 +14,7 @@ class Laptop(Base):
     ram = Column(VARCHAR(20), nullable=False)
     screensize = Column(VARCHAR(10), nullable=False)
     matrix = Column(VARCHAR(10), nullable=False)
+    color = Column(VARCHAR(20), nullable=True)
 
     market_offers = relationship("MarketOffer", back_populates="laptop", foreign_keys="MarketOffer.laptopid")
 

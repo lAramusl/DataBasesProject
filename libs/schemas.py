@@ -11,6 +11,7 @@ class LaptopSchema(BaseModel):
     ram: str
     screensize: str
     matrix: str
+    color: str
 
     class Config:
         orm_mode = True
