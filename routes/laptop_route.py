@@ -17,7 +17,9 @@ def filter_laptops(
     cpu: Optional[str] = Query(None),
     ram: Optional[str] = Query(None),
     max_screensize: Optional[float] = Query(None),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    skip: int = 0,
+    limit: int = 100
 ):
     '''
     SELECT WHERE запрос для Ноутбуков
@@ -32,14 +34,14 @@ def filter_laptops(
     if max_screensize:
         query = query.filter(Laptop.screensize.cast(Float) <= max_screensize)
 
-    return query.all()
+    return query.offset(skip).limit(limit).all()
 
 @router.get("/laptops-with-market-offers", response_model=List[dict])
 def get_laptops_with_market_offers(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     """
     Получить список ноутбуков с их рыночными предложениями (JOIN Laptop и MarketOffer).
     """
-    query = db.query(Laptop, MarketOffer).join(MarketOffer, Laptop.id == MarketOffer.laptopid).all()
+    query = db.query(Laptop, MarketOffer).join(MarketOffer, Laptop.id == MarketOffer.laptopid).offset(skip).limit(limit).all()
 
     return [
         {
@@ -71,8 +73,6 @@ def update_laptops(
     filter_field: str = Query(..., description="Field to filter laptops by"),
     filter_value: str = Query(..., description="Value to filter laptops by"),
     db: Session = Depends(get_db),
-    skip: int = 0, 
-    limit: int = 100,
 ):
     """
     Обновить выбранное поле для всех ноутбуков, соответствующих фильтру.
@@ -100,6 +100,8 @@ def update_laptops(
 def group_by_field(
     group_field: str = Query(..., description="Поле для группировки (например, CPU, GPU, RAM, ScreenSize)"),
     db: Session = Depends(get_db),
+    skip: int = 0,
+    limit: int = 100
 ):
     """
     Группировка данных по выбранному полю с применением агрегатной функции.
@@ -115,10 +117,9 @@ def group_by_field(
     # Определение агрегатной функции
 
     # Выполнение запроса
-    query = db.query(Laptop).group_by(Laptop.id, group_field)
-    result = query.all()
+    query = db.query(Laptop).group_by(Laptop.id, group_field).offset(skip).limit(limit).all()
 
-    return result
+    return query
 
 @router.get("/", response_model=list[LaptopSchema])
 def get_laptops(
@@ -147,12 +148,12 @@ def get_laptops(
 
 @router.get("/search-json", response_model=List[LaptopSchema])
 def search_laptops_by_json(
-    key: str, value: str, db: Session = Depends(get_db)
+    key: str, value: str, db: Session = Depends(get_db), skip: int = 0, limit: int = 100
 ):
     """
     Поиск ноутбуков по ключу и значению в extra_info (JSON).
     """
-    query = db.query(Laptop).filter(Laptop.extra_info[key].astext == value)
+    query = db.query(Laptop).filter(Laptop.extra_info[key].astext == value).offset(skip).limit(limit)
     result = query.all()
     if not result:
         raise HTTPException(status_code=404, detail="No laptops found")

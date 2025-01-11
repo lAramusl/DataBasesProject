@@ -93,6 +93,8 @@ def update_producers(
 def group_by_producers(
     group_by_field: str,
     db: Session = Depends(get_db),
+    skip: int = 0,
+    limit: int = 100
 ):
     """
     Выполнить группировку производителей по указанному полю.
@@ -105,8 +107,7 @@ def group_by_producers(
 
     query = (
         db.query(group_by_column, func.count(Producer.id))
-        .group_by(group_by_column)
-        .all()
+        .group_by(group_by_column).offset(skip).limit(limit).all()
     )
 
     # Форматируем результат
