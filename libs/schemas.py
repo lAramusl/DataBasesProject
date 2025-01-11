@@ -11,8 +11,8 @@ class LaptopSchema(BaseModel):
     ram: str
     screensize: str
     matrix: str
-    color: str #added with alembic to db
-
+    color: Optional[str] = None
+    extra_info: Optional[dict] = None
     class Config:
         orm_mode = True
 
@@ -23,6 +23,8 @@ class LaptopCreateSchema(BaseModel):
     ram: str
     screensize: str
     matrix: str
+    color: Optional[str] = None
+    extra_info: Optional[dict] = None
 
 class LaptopUpdateSchema(BaseModel):
     model: Optional[str] = None
@@ -31,7 +33,8 @@ class LaptopUpdateSchema(BaseModel):
     ram: Optional[str] = None
     screensize: Optional[str] = None
     matrix: Optional[str] = None
-
+    color: Optional[str] = None
+    extra_info: Optional[dict] = None
     class Config:
         orm_mode = True
 

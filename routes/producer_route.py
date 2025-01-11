@@ -10,50 +10,6 @@ from sqlalchemy.sql import func
 
 router = APIRouter()
 
-#--------------------------------------------------------------------------------------PRODUCER CRUD
-@router.post("/", response_model=ProducerSchema)
-def create_producer(producer: ProducerCreateSchema, db: Session = Depends(get_db)):
-    """
-    Создание производителя
-    """
-    return crud.create_producer(db=db, producer=producer)
-
-@router.get("/", response_model=list[ProducerSchema])
-def get_producers(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    """
-    Получение производителей
-    """
-    return crud.get_producers(db=db, skip=skip, limit=limit)
-
-@router.get("/{producer_id}", response_model=ProducerSchema)
-def get_producer(producer_id: int, db: Session = Depends(get_db)):
-    """
-    Получение производителей по ID
-    """
-    db_producer = crud.get_producer(db=db, producer_id=producer_id)
-    if db_producer is None:
-        raise HTTPException(status_code=404, detail="Producer not found")
-    return db_producer
-
-@router.put("/{producer_id}", response_model=ProducerSchema)
-def update_producer(producer_id: int, producer: ProducerUpdateSchema, db: Session = Depends(get_db)):
-    """
-    Oбновление производителя
-    """
-    db_producer = crud.update_producer(db=db, producer_id=producer_id, producer=producer)
-    if db_producer is None:
-        raise HTTPException(status_code=404, detail="Producer not found")
-    return db_producer
-
-@router.delete("/{producer_id}", response_model=ProducerSchema)
-def delete_producer(producer_id: int, db: Session = Depends(get_db)):
-    """
-    Удаление Производителя
-    """
-    db_producer = crud.delete_producer(db=db, producer_id=producer_id)
-    if db_producer is None:
-        raise HTTPException(status_code=404, detail="Producer not found")
-    return db_producer
 
 @router.get("/filter", response_model=List[ProducerSchema])
 def filter_producers(
@@ -69,11 +25,11 @@ def filter_producers(
     """
     query = db.query(Producer)
     if name:
-        query = query.filter(Producer.Name.ilike(f"%{name}%"))
+        query = query.filter(Producer.name.ilike(f"%{name}%"))
     if country:
-        query = query.filter(Producer.Country.ilike(f"%{country}%"))
+        query = query.filter(Producer.country.ilike(f"%{country}%"))
     if warranty is not None:
-        query = query.filter(Producer.Warranty == warranty)
+        query = query.filter(Producer.warranty == warranty)
 
     return query.offset(skip).limit(limit).all()
 
@@ -183,3 +139,50 @@ def get_producers(
 
     return query.offset(skip).limit(limit).all()
 
+#--------------------------------------------------------------------------------------PRODUCER CRUD
+@router.post("/", response_model=ProducerSchema)
+def create_producer(producer: ProducerCreateSchema, db: Session = Depends(get_db)):
+    """
+    Создание производителя
+    """
+    return crud.create_producer(db=db, producer=producer)
+
+@router.get("/", response_model=list[ProducerSchema])
+def get_producers(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+    """
+    Получение производителей
+    """
+    return crud.get_producers(db=db, skip=skip, limit=limit)
+
+@router.get("/{producer_id}", response_model=ProducerSchema)
+def get_producer(producer_id: int, db: Session = Depends(get_db)):
+    """
+    Получение производителей по ID
+    """
+    db_producer = crud.get_producer(db=db, producer_id=producer_id)
+    if db_producer is None:
+        raise HTTPException(status_code=404, detail="Producer not found")
+    return db_producer
+
+@router.put("/{producer_id}", response_model=ProducerSchema)
+def update_producer(producer_id: int, producer: ProducerUpdateSchema, db: Session = Depends(get_db)):
+    """
+    Oбновление производителя
+    """
+    db_producer = crud.update_producer(db=db, producer_id=producer_id, producer=producer)
+    if db_producer is None:
+        raise HTTPException(status_code=404, detail="Producer not found")
+    return db_producer
+
+@router.delete("/{producer_id}", response_model=ProducerSchema)
+def delete_producer(producer_id: int, db: Session = Depends(get_db)):
+    """
+    Удаление Производителя
+    """
+    try:
+        db_producer = crud.delete_producer(db=db, producer_id=producer_id)
+    except:
+        raise HTTPException(status_code=500, detail="Producer is connected to another table")
+    if db_producer is None:
+        raise HTTPException(status_code=404, detail="Producer not found")
+    return db_producer
