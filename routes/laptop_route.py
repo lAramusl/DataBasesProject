@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Query, Depends, HTTPException
 from sqlalchemy.orm import Session
+from sqlalchemy.exc import IntegrityError
 from typing import List, Optional
 from libs.database import get_db
 from libs.models import Laptop, MarketOffer
@@ -58,32 +59,37 @@ def get_laptops_with_market_offers(db: Session = Depends(get_db)):
         for laptop, offer in query
     ]
 
-@router.put("/update-laptop/{laptop_id}")
-def update_laptop_field(
-    laptop_id: int,
-    field: str,
-    value: any,
+@router.put("/update", response_model=int)
+def update_laptops(
+    field_name: str,
+    new_value: str,
+    filter_field: str = Query(..., description="Field to filter laptops by"),
+    filter_value: str = Query(..., description="Value to filter laptops by"),
     db: Session = Depends(get_db),
 ):
     """
-    Обновить указанное поле ноутбука.
-    :param laptop_id: ID ноутбука для обновления.
-    :param field: Название поля, которое нужно обновить.
-    :param value: Новое значение.
+    Обновить выбранное поле для всех ноутбуков, соответствующих фильтру.
+    Возвращает количество обновлённых записей.
     """
-    laptop = db.query(Laptop).filter(Laptop.id == laptop_id).first()
-    if not laptop:
-        raise HTTPException(status_code=404, detail="Laptop not found")
+    # Проверяем, существует ли поле в модели
+    if not hasattr(Laptop, field_name) or not hasattr(Laptop, filter_field):
+        raise HTTPException(status_code=400, detail="Invalid field name(s)")
 
-    if not hasattr(Laptop, field):
-        raise HTTPException(status_code=400, detail=f"Field '{field}' does not exist in Laptop")
+    # Формируем условие WHERE
+    filter_condition = getattr(Laptop, filter_field) == filter_value
 
-    setattr(laptop, field, value)
-    db.commit()
-    db.refresh(laptop)
+    # Выполняем обновление
+    try:
+        result = db.query(Laptop).filter(filter_condition).update(
+            {getattr(Laptop, field_name): new_value},
+            synchronize_session="fetch",
+        )
+        db.commit()
+    except IntegrityError as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
 
-    return {"detail": f"Laptop with ID {laptop_id} updated successfully"}
-
+    return result
 
 @router.get("/group-by")
 def group_by_field(
@@ -133,6 +139,6 @@ def group_by_field(
         {"group_value": row.group_value, "aggregate_result": row.aggregate_result}
         for row in query]
 
-    return
+    return result
 
 

@@ -10,11 +10,11 @@ app = FastAPI()
 
 Base.metadata.create_all(bind=engine)
 
-#app.include_router(producer_route.router, prefix="/producers", tags=["Producers"])
+app.include_router(producer_route.router, prefix="/producers", tags=["Producers"])
 
-#app.include_router(laptop_route.router, prefix="/laptops", tags=["Laptops"])
+app.include_router(laptop_route.router, prefix="/laptops", tags=["Laptops"])
 
-#app.include_router(marketoffer_route.router, prefix="/marketoffers", tags=["Marketoffers"])
+app.include_router(marketoffer_route.router, prefix="/marketoffers", tags=["Marketoffers"])
 #--------------------------------------------------------------------------------LAPTOP CRUD
 @app.post("/laptops/", response_model=sch.LaptopSchema)
 def create_laptop(laptop: sch.LaptopCreateSchema, db: Session = Depends(get_db)):
