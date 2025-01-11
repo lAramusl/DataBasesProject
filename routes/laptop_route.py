@@ -4,11 +4,59 @@ from sqlalchemy.exc import IntegrityError
 from typing import List, Optional
 from libs.database import get_db
 from libs.models import Laptop, MarketOffer
-from libs.schemas import LaptopSchema, MarketOfferSchema
+from libs.schemas import LaptopSchema, LaptopCreateSchema, LaptopUpdateSchema
+from libs import crud
 from sqlalchemy import Integer, Float
 from sqlalchemy.sql import func
 
 router = APIRouter()
+
+#--------------------------------------------------------------------------------LAPTOP CRUD
+@router.post("/", response_model=LaptopSchema)
+def create_laptop(laptop: LaptopCreateSchema, db: Session = Depends(get_db)):
+    '''
+    Создание нового Ноутбука
+    '''
+    return crud.create_laptop(db=db, laptop=laptop)
+
+@router.get("/", response_model=list[LaptopSchema])
+def get_laptops(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+    '''
+    Получение ноутбуков
+    '''
+    return crud.get_laptops(db=db, skip=skip, limit=limit)
+
+@router.get("/{laptop_id}", response_model=LaptopSchema)
+def get_laptop(laptop_id: int, db: Session = Depends(get_db)):
+    '''
+    Получение Ноутбука по ID
+    '''
+    db_laptop = crud.find_laptop(db=db, laptop_id=laptop_id)
+    if db_laptop is None:
+        raise HTTPException(status_code=404, detail="Laptop not found")
+    return db_laptop
+
+@router.put('/{laptop_id}', response_model=LaptopSchema)
+def update_laptop(laptop_id: int, laptop: LaptopSchema, db: Session = Depends(get_db)):
+    '''
+    Обновление полей ноутбука
+    '''
+    db_laptop = crud.update_laptop(db=db, laptop_id=laptop_id, laptop=laptop)
+
+    if db_laptop is None:
+        raise HTTPException(status_code=404, detail="laptop not found")
+    
+    return db_laptop
+
+@router.delete("/{laptop_id}", response_model=LaptopSchema)
+def delete_laptop(laptop_id: int, db: Session = Depends(get_db)):
+    '''
+    Удаление ноутбука по ID
+    '''
+    db_laptop = crud.delete_laptop(db=db, laptop_id=laptop_id)
+    if db_laptop is None:
+        raise HTTPException(status_code=404, detail="Laptop not found")
+    return db_laptop
 
 @router.get("/filter", response_model=List[LaptopSchema])
 def filter_laptops(
@@ -18,7 +66,9 @@ def filter_laptops(
     max_screensize: Optional[float] = Query(None),
     db: Session = Depends(get_db)
 ):
-
+    '''
+    SELECT WHERE запрос для Ноутбуков
+    '''
     query = db.query(Laptop)
     if model:
         query = query.filter(Laptop.model.ilike(f"%{model}%"))
@@ -75,10 +125,8 @@ def update_laptops(
     if not hasattr(Laptop, field_name) or not hasattr(Laptop, filter_field):
         raise HTTPException(status_code=400, detail="Invalid field name(s)")
 
-    # Формируем условие WHERE
     filter_condition = getattr(Laptop, filter_field) == filter_value
 
-    # Выполняем обновление
     try:
         result = db.query(Laptop).filter(filter_condition).update(
             {getattr(Laptop, field_name): new_value},
