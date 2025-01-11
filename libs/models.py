@@ -1,4 +1,5 @@
 from sqlalchemy import Column, Integer, String, Float, VARCHAR, DateTime, BOOLEAN, ForeignKey, Index
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 
@@ -16,9 +17,12 @@ class Laptop(Base):
     matrix = Column(VARCHAR(10), nullable=False)
     color = Column(VARCHAR(20), nullable=True)
 
+    extra_info = Column(JSONB)
+
     market_offers = relationship("MarketOffer", back_populates="laptop", foreign_keys="MarketOffer.laptopid")
 
 Index("ix_laptop_color", Laptop.color)
+Index('ix_laptop_extra_info', Laptop.extra_info, postgresql_using='gin', postgresql_ops={'extra_info': 'jsonb_ops'})
 
 class Producer(Base):
     __tablename__ = "producer"
