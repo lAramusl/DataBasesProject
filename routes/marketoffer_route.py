@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Query, Depends, HTTPException
 from sqlalchemy.orm import Session
+from sqlalchemy.exc import IntegrityError
 from typing import List, Optional
 from libs.database import get_db
 from libs.models import MarketOffer
@@ -66,3 +67,32 @@ def filter_market_offers(
 
     return query.all()
 
+@router.put("/update", response_model=int)
+def update_offers(
+    field_name: str,
+    new_value: str,
+    filter_field: str = Query(..., description="Field to filter Marketoffers by"),
+    filter_value: str = Query(..., description="Value to filter Marketoffers by"),
+    db: Session = Depends(get_db),
+):
+    """
+    Обновить выбранное поле для всех предложений, соответствующих фильтру.
+    Возвращает количество обновлённых записей.
+    """
+    # Проверяем, существует ли поле в модели
+    if not hasattr(MarketOffer, field_name) or not hasattr(MarketOffer, filter_field):
+        raise HTTPException(status_code=400, detail="Invalid field name(s)")
+
+    filter_condition = getattr(MarketOffer, filter_field) == filter_value
+
+    try:
+        result = db.query(MarketOffer).filter(filter_condition).update(
+            {getattr(MarketOffer, field_name): new_value},
+            synchronize_session="fetch",
+        )
+        db.commit()
+    except IntegrityError as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
+
+    return result

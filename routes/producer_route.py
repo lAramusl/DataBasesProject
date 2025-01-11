@@ -4,8 +4,9 @@ from sqlalchemy.orm import Session
 from typing import List, Optional
 from libs.database import get_db
 from libs import crud
-from libs.models import Producer
+from libs.models import Producer, MarketOffer
 from libs.schemas import ProducerSchema, ProducerCreateSchema, ProducerUpdateSchema
+from sqlalchemy.sql import func
 
 router = APIRouter()
 
@@ -74,12 +75,38 @@ def filter_producers(
 
     return query.all()
 
+@router.get("/producers-with-market-offers", response_model=List[dict])
+def get_producers_with_market_offers(db: Session = Depends(get_db)):
+    """
+    Получить список ноутбуков с их рыночными предложениями (JOIN Producer и MarketOffer).
+    """
+    query = db.query(Producer, MarketOffer).join(MarketOffer, Producer.id == MarketOffer.producerid).all()
+
+    return [
+        {
+            "producer": {
+                "id": producer.id,
+                "name": producer.name,
+                "country": producer.country,
+                "placement": producer.placement,
+                "warranty": producer.warranty,
+            },
+            "market_offer": {
+                "id": offer.id,
+                "producer_id": offer.producerid,
+                "price": offer.price,
+                "date": offer.date,
+            },
+        }
+        for producer, offer in query
+    ]
+
 @router.put("/update", response_model=int)
 def update_producers(
     field_name: str,
     new_value: str,
-    filter_field: str = Query(..., description="Field to filter by"),
-    filter_value: str = Query(..., description="Value to filter by"),
+    filter_field: str = Query(..., description="Field to filter Producers by"),
+    filter_value: str = Query(..., description="Value to filter Producers by"),
     db: Session = Depends(get_db),
 ):
     """
