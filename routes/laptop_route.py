@@ -214,3 +214,15 @@ def get_laptops(
 
     return query.offset(skip).limit(limit).all()
 
+@router.get("/search-json", response_model=List[LaptopSchema])
+def search_laptops_by_json(
+    key: str, value: str, db: Session = Depends(get_db)
+):
+    """
+    Поиск ноутбуков по ключу и значению в extra_info (JSON).
+    """
+    query = db.query(Laptop).filter(Laptop.extra_info[key].astext == value)
+    result = query.all()
+    if not result:
+        raise HTTPException(status_code=404, detail="No laptops found")
+    return result
