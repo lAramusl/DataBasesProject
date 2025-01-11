@@ -158,3 +158,28 @@ def group_by_producers(
 
     return result
 
+@router.get("/", response_model=list[ProducerSchema])
+def get_producers(
+    skip: int = 0, 
+    limit: int = 100, 
+    sort_by: Optional[str] = Query(None),
+    order: Optional[str] = Query("asc", regex="^(asc|desc)$"),
+    db: Session = Depends(get_db)
+):
+    """
+    Получение производителей с возможностью сортировки
+    """
+    query = db.query(Producer)
+
+    if sort_by:
+        if hasattr(Producer, sort_by):
+            column = getattr(Producer, sort_by)
+            if order == "desc":
+                query = query.order_by(column.desc())
+            else:
+                query = query.order_by(column.asc())
+        else:
+            raise HTTPException(status_code=400, detail=f"Invalid sort field '{sort_by}'")
+
+    return query.offset(skip).limit(limit).all()
+

@@ -96,3 +96,28 @@ def update_offers(
         raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
 
     return result
+
+@router.get("/", response_model=list[MarketOfferSchema])
+def get_market_offers(
+    skip: int = 0, 
+    limit: int = 100, 
+    sort_by: Optional[str] = Query(None),
+    order: Optional[str] = Query("asc", regex="^(asc|desc)$"),
+    db: Session = Depends(get_db)
+):
+    """
+    Получение рыночных предложений с возможностью сортировки
+    """
+    query = db.query(MarketOffer)
+
+    if sort_by:
+        if hasattr(MarketOffer, sort_by):
+            column = getattr(MarketOffer, sort_by)
+            if order == "desc":
+                query = query.order_by(column.desc())
+            else:
+                query = query.order_by(column.asc())
+        else:
+            raise HTTPException(status_code=400, detail=f"Invalid sort field '{sort_by}'")
+
+    return query.offset(skip).limit(limit).all()

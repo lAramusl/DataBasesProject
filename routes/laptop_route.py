@@ -189,4 +189,28 @@ def group_by_field(
 
     return result
 
+@router.get("/", response_model=list[LaptopSchema])
+def get_laptops(
+    skip: int = 0, 
+    limit: int = 100, 
+    sort_by: Optional[str] = Query(None),
+    order: Optional[str] = Query("asc", regex="^(asc|desc)$"),
+    db: Session = Depends(get_db)
+):
+    """
+    Получение ноутбуков с возможностью сортировки
+    """
+    query = db.query(Laptop)
+
+    if sort_by:
+        if hasattr(Laptop, sort_by):
+            column = getattr(Laptop, sort_by)
+            if order == "desc":
+                query = query.order_by(column.desc())
+            else:
+                query = query.order_by(column.asc())
+        else:
+            raise HTTPException(status_code=400, detail=f"Invalid sort field '{sort_by}'")
+
+    return query.offset(skip).limit(limit).all()
 
