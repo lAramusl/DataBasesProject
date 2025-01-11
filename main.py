@@ -3,17 +3,18 @@ import libs.schemas as sch
 from libs.database import get_db, engine, Base
 from sqlalchemy.orm import Session
 from fastapi import FastAPI, Depends, HTTPException
+from routes import laptop_route, marketoffer_route, producer_route
 import libs.crud as crud
 
 app = FastAPI()
 
 Base.metadata.create_all(bind=engine)
 
+#app.include_router(producer_route.router, prefix="/producers", tags=["Producers"])
 
-@app.get('/')
-def read_root():
-    return {"hello" : "world"}
+#app.include_router(laptop_route.router, prefix="/laptops", tags=["Laptops"])
 
+#app.include_router(marketoffer_route.router, prefix="/marketoffers", tags=["Marketoffers"])
 #--------------------------------------------------------------------------------LAPTOP CRUD
 @app.post("/laptops/", response_model=sch.LaptopSchema)
 def create_laptop(laptop: sch.LaptopCreateSchema, db: Session = Depends(get_db)):
