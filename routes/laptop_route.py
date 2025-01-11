@@ -36,11 +36,11 @@ def get_laptop(laptop_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Laptop not found")
     return db_laptop
 
-@router.put('/{laptop_id}', response_model=LaptopSchema)
-def update_laptop(laptop_id: int, laptop: LaptopSchema, db: Session = Depends(get_db)):
-    '''
+@router.put('/{laptop_id}', response_model=LaptopUpdateSchema)
+def update_laptop(laptop_id: int, laptop: LaptopUpdateSchema, db: Session = Depends(get_db)):
+    """
     Обновление полей ноутбука
-    '''
+    """
     db_laptop = crud.update_laptop(db=db, laptop_id=laptop_id, laptop=laptop)
 
     if db_laptop is None:
@@ -82,7 +82,7 @@ def filter_laptops(
     return query.all()
 
 @router.get("/laptops-with-market-offers", response_model=List[dict])
-def get_laptops_with_market_offers(db: Session = Depends(get_db)):
+def get_laptops_with_market_offers(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     """
     Получить список ноутбуков с их рыночными предложениями (JOIN Laptop и MarketOffer).
     """

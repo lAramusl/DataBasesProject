@@ -1,10 +1,6 @@
-import libs.models as modl
-import libs.schemas as sch
-from libs.database import get_db, engine, Base
-from sqlalchemy.orm import Session
-from fastapi import FastAPI, Depends, HTTPException
+from libs.database import engine, Base
+from fastapi import FastAPI
 from routes import laptop_route, marketoffer_route, producer_route
-import libs.crud as crud
 
 app = FastAPI()
 

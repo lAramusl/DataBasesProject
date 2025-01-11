@@ -60,6 +60,8 @@ def filter_producers(
     name: Optional[str] = Query(None),
     country: Optional[str] = Query(None),
     warranty: Optional[bool] = Query(None),
+    skip: int = 0,
+    limit: int = 100,
     db: Session = Depends(get_db)
 ):
     """
@@ -73,7 +75,7 @@ def filter_producers(
     if warranty is not None:
         query = query.filter(Producer.Warranty == warranty)
 
-    return query.all()
+    return query.offset(skip).limit(limit).all()
 
 @router.get("/producers-with-market-offers", response_model=List[dict])
 def get_producers_with_market_offers(db: Session = Depends(get_db)):
